@@ -13,7 +13,7 @@ for i in range(30):
     except Exception:
         time.sleep(1)
 else:
-    raise SystemExit('PostgreSQL не поднялся за 30 секунд')
+    raise SystemExit('PostgreSQL don't start in 30 sec')
 "
 echo "PostgreSQL is up"
 
