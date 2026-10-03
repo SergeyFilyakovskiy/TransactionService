@@ -7,7 +7,7 @@ python -c "
 import time, socket
 for i in range(30):
     try:
-        s = socket.create_connection(('db', 5432), timeout=2)
+        s = socket.create_connection(('postgres', 5432), timeout=2)
         s.close()
         break
     except Exception:
