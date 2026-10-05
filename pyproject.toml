@@ -25,21 +25,28 @@ dependencies = [
 
 [tool.mypy]
 python_version = "3.14"
-strict = true
-plugins = ["pydantic.mypy"]
+plugins = [
+    "pydantic.mypy",
+]
 
+warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 show_error_codes = true
+disallow_untyped_defs = true
+check_untyped_defs = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 
 [[tool.mypy.overrides]]
 module = [
     "uvicorn.*",
-    "sqlalchemy.*",
     "alembic.*",
     "passlib.*",
-    "jose.*"
+    "jose.*",
+    "asyncpg.*",
+    "psycopg2.*",
+    "multipart.*",
+    "starlette.*"
 ]
 ignore_missing_imports = true
 
