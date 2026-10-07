@@ -1,41 +1,10 @@
 import uuid
-from datetime import datetime
 
-from sqlalchemy import (
-    UUID,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    Numeric,
-    String,
-    UniqueConstraint,
-    func,
-)
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import UUID, Boolean, ForeignKey, Numeric, String, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.base_model import Base
 from app.core.enums import ReportStatus, TransactionStatus, TransactionType
-
-
-class Base(AsyncAttrs, DeclarativeBase):
-    __abstract__ = True
-
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID,
-        default=uuid.uuid4,
-        primary_key=True,
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        server_onupdate=func.now(),
-    )
 
 
 class Currency(Base):
@@ -51,7 +20,6 @@ class Currency(Base):
 
 
 class User(Base):
-
     __tablename__ = "users"
 
     email: Mapped[str] = mapped_column(
@@ -81,7 +49,6 @@ class User(Base):
 
 
 class Balance(Base):
-
     __tablename__ = "balances"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -113,7 +80,6 @@ class Balance(Base):
 
 
 class Transaction(Base):
-
     __tablename__ = "transactions"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -159,7 +125,6 @@ class Transaction(Base):
 
 
 class ReportFiles(Base):
-
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID,
         ForeignKey("users.id"),
