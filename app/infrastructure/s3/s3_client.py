@@ -1,4 +1,3 @@
-# s3_client.py
 from contextlib import asynccontextmanager
 
 import aioboto3
@@ -6,9 +5,6 @@ from botocore.config import Config
 from fastapi import Depends, FastAPI, Request
 
 from app.core.config import settings
-
-# Глобальная переменная для хранения клиента, но мы будем обращаться к ней только через app.state
-# Это стандартный паттерн FastAPI для ресурсов с жизненным циклом.
 
 
 @asynccontextmanager
