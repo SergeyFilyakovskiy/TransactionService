@@ -21,6 +21,7 @@ dependencies = [
     "python-jose>=3.5.0",
     "black>=26.5.1",
     "pre-commit>=4.6.2",
+    "aioboto3>=15.5.0",
 ]
 
 [tool.mypy]
