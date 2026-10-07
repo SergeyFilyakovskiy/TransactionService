@@ -35,5 +35,4 @@ async def lifespan(app: FastAPI):
 
 
 async def get_s3_client(request: Request):
-
     return request.app.state.s3_client
