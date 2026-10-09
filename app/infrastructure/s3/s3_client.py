@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 import aioboto3
 from botocore.config import Config
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 
 from app.core.config import settings
 
@@ -21,8 +21,8 @@ async def lifespan(app: FastAPI):
     client_cm = session.client(
         "s3",
         endpoint_url=settings.minio_endpoint,
-        aws_access_key_id=settings.minio_access_key,
-        aws_secret_access_key=settings.minio_secret_key,
+        aws_access_key_id=settings.minio_access_key.get_secret_value(),
+        aws_secret_access_key=settings.minio_secret_key.get_secret_value(),
         region_name=settings.minio_region,
         config=boto_config,
     )
