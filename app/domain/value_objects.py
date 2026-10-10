@@ -8,7 +8,6 @@ import bcrypt
 
 @dataclass(frozen=True)
 class Email:
-
     value: str
 
     def __post_init__(self):
@@ -25,7 +24,6 @@ class Email:
 
 @dataclass(frozen=True)
 class HashedPassword:
-
     value: str
 
     @staticmethod
@@ -46,25 +44,3 @@ class HashedPassword:
 
     def __repr__(self) -> str:
         return "HashedPassword(value=***)"
-
-
-@dataclass
-class UserProfile:
-    """value-object for entity User"""
-
-    first_name: str | None = None
-    last_name: str | None = None
-    avatar_url: str | None = None
-    bio: str | None = None
-
-    def update(self, **kwargs) -> None:
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-
-    @property
-    def full_name(self) -> str | None:
-
-        if self.first_name or self.last_name:
-            return f"{self.first_name or ''} {self.last_name or ''}".strip()
-        return None

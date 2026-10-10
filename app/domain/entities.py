@@ -7,7 +7,6 @@ from app.domain.value_objects import Email, HashedPassword
 
 @dataclass
 class User:
-
     id: UUID
     email: Email
     hashed_password: HashedPassword
