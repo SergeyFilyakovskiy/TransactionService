@@ -1,27 +1,29 @@
-class ServiceError(Exception):
-    """Service base exception"""
+class AppError(Exception):
+    """Base application exception."""
 
 
-class UserAlreadyExistsError(ServiceError):
+class ServiceError(AppError):
+    """Unexpected internal error -> HTTP 500."""
+
+
+class DomainError(AppError):
+    """Business-rule violation -> HTTP 4xx (mapping lives in presentation layer)."""
+
+
+class UserAlreadyExistsError(DomainError):
     def __init__(self, email: str):
         super().__init__(f"User with email '{email}' already exists")
 
 
-class UserNotFoundError(ServiceError):
+class InvalidCredentialsError(DomainError):
     pass
 
 
-class UserInactiveError(ServiceError):
-    pass
+class TooManyAttemptsError(DomainError):
+    def __init__(self, retry_after: int | None = None):
+        super().__init__("Too many failed attempts, try again later")
+        self.retry_after = retry_after
 
 
-class InvalidCredentialsError(ServiceError):
-    pass
-
-
-class TooManyAttemptsError(ServiceError):
-    pass
-
-
-class InvalidTokenError(ServiceError):
+class InvalidTokenError(DomainError):
     pass
