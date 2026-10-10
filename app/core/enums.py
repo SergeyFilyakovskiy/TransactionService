@@ -5,6 +5,7 @@ class TransactionStatus(StrEnum):
     PENDING = "pending"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
+    FAILED = "failed"
 
 
 class TransactionType(StrEnum):
@@ -13,7 +14,7 @@ class TransactionType(StrEnum):
 
 
 class ReportStatus(StrEnum):
-
     PENDING = "pending"
+    PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
