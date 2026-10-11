@@ -1,4 +1,3 @@
-# app/api/error_handling.py
 from __future__ import annotations
 
 import logging
