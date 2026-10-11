@@ -19,7 +19,6 @@ from app.infrastructure.redis.token_store import RedisTokenStore
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-# ── Инфраструктурные зависимости ──────────────────────────
 async def get_postgres_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         try:
