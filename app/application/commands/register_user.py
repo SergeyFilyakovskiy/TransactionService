@@ -13,8 +13,6 @@ from app.domain.value_objects import Email, HashedPassword
 class RegisterUserCommand:
     email: str
     password: str
-    first_name: str | None = None
-    last_name: str | None = None
 
 
 class RegisterUserHandler:
