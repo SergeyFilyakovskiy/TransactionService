@@ -8,7 +8,7 @@ from app.core.config import settings
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def s3_lifespan(app: FastAPI):
 
     session = aioboto3.Session()
 
@@ -28,10 +28,10 @@ async def lifespan(app: FastAPI):
     )
 
     app.state.s3_client = await client_cm.__aenter__()
-
-    yield
-
-    await client_cm.__aexit__(None, None, None)
+    try:
+        yield
+    finally:
+        await client_cm.__aexit__(None, None, None)
 
 
 async def get_s3_client(request: Request):
