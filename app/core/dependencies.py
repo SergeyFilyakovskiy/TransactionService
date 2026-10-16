@@ -26,6 +26,7 @@ from app.application.queries import (
     GetCurrencyHandler,
     GetReportHandler,
     GetTransactionHandler,
+    GetUserHandler,
     ListBalancesHandler,
     ListCurrenciesHandler,
     ListTransactionsHandler,
@@ -283,6 +284,12 @@ async def get_get_report_handler(
     return GetReportHandler(report_repo)
 
 
+async def get_get_user_handler(
+    user_repo: UserRepoDep,
+) -> GetUserHandler:
+    return GetUserHandler(user_repo)
+
+
 # ── Type aliases for use in endpoints ────────────────────
 
 SessionDep = Annotated[AsyncSession, Depends(get_postgres_session)]
@@ -346,3 +353,5 @@ ListTransactionsHandlerDep = Annotated[
 ]
 
 GetReportHandlerDep = Annotated[GetReportHandler, Depends(get_get_report_handler)]
+
+GetUserHandlerDep = Annotated[GetUserHandler, Depends(get_get_user_handler)]
