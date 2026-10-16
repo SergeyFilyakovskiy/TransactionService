@@ -40,6 +40,17 @@ class Config(BaseSettings):
     redis_port: str = Field(validation_alias="REDIS_PORT")
     redis_db: str = Field(validation_alias="REDIS_AUTH_DB")
 
+    taskiq_broker_url: str = Field(validation_alias="TASKIQ_BROKER_URL")
+    taskiq_result_backend_url: str = Field(validation_alias="TASKIQ_RESULT_BACKEND_URL")
+    taskiq_max_concurrent_tasks: int = Field(
+        validation_alias="TASKIQ_MAX_CONCURRENT_TASKS"
+    )
+    taskiq_ack_time: float = Field(validation_alias="TASKIQ_ACK_TIME")
+    taskiq_max_retries: int = Field(validation_alias="TASKIQ_MAX_RETRIES")
+    taskiq_retry_delay_seconds: int = Field(
+        validation_alias="TASKIQ_RETRY_DELAY_SECONDS"
+    )
+
     @property
     def db_async_url(self) -> str:
         return (
