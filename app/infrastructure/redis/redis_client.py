@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from redis.asyncio import ConnectionPool, Redis
@@ -7,7 +8,7 @@ from app.core.config import settings
 
 
 @asynccontextmanager
-async def redis_lifespan(app: FastAPI):
+async def redis_lifespan(app: FastAPI) -> AsyncGenerator[None]:
     pool = ConnectionPool.from_url(
         url=settings.redis_url,
         max_connections=20,
