@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
 from app.api.v1.schemas.auth import (
     LoginRequest,
@@ -10,23 +10,17 @@ from app.api.v1.schemas.auth import (
     RegisterRequest,
     TokenResponse,
 )
-from app.application.commands.login_user import LoginUserCommand, LoginUserHandler
-from app.application.commands.logout_user import LogoutUserCommand, LogoutUserHandler
-from app.application.commands.refresh_token import (
-    RefreshTokenCommand,
-    RefreshTokenHandler,
-)
-from app.application.commands.register_user import (
-    RegisterUserCommand,
-    RegisterUserHandler,
-)
+from app.application.commands.login_user import LoginUserCommand
+from app.application.commands.logout_user import LogoutUserCommand
+from app.application.commands.refresh_token import RefreshTokenCommand
+from app.application.commands.register_user import RegisterUserCommand
 from app.application.services.token_service import TokenService
 from app.core.dependencies import (
-    get_access_token,
-    get_login_handler,
-    get_logout_handler,
-    get_refresh_handler,
-    get_register_handler,
+    AccessTokenDep,
+    LoginHandlerDep,
+    LogoutHandlerDep,
+    RefreshHandlerDep,
+    RegisterHandlerDep,
 )
 from app.domain.exceptions import InvalidTokenError
 
@@ -38,16 +32,16 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 )
 async def register(
     body: RegisterRequest,
-    handler: RegisterUserHandler = Depends(get_register_handler),
-    login_handler: LoginUserHandler = Depends(get_login_handler),
+    handler: RegisterHandlerDep,
+    login_handler: LoginHandlerDep,
 ):
-    await handler.handle(
+    await handler.execute(
         RegisterUserCommand(
             email=body.email,
-            password=body.password,
+            plain_password=body.password,
         )
     )
-    tokens = await login_handler.handle(
+    tokens = await login_handler.execute(
         LoginUserCommand(email=body.email, password=body.password)
     )
     return TokenResponse(
@@ -56,10 +50,8 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(
-    body: LoginRequest, handler: LoginUserHandler = Depends(get_login_handler)
-):
-    tokens = await handler.handle(
+async def login(body: LoginRequest, handler: LoginHandlerDep):
+    tokens = await handler.execute(
         LoginUserCommand(email=body.email, password=body.password)
     )
     return TokenResponse(
@@ -68,10 +60,10 @@ async def login(
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(
-    body: RefreshRequest, handler: RefreshTokenHandler = Depends(get_refresh_handler)
-):
-    tokens = await handler.handle(RefreshTokenCommand(refresh_token=body.refresh_token))
+async def refresh(body: RefreshRequest, handler: RefreshHandlerDep):
+    tokens = await handler.execute(
+        RefreshTokenCommand(refresh_token=body.refresh_token)
+    )
     return TokenResponse(
         access_token=tokens.access_token, refresh_token=tokens.refresh_token
     )
@@ -79,12 +71,12 @@ async def refresh(
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
-    access_token: str = Depends(get_access_token),
-    handler: LogoutUserHandler = Depends(get_logout_handler),
+    access_token: AccessTokenDep,
+    handler: LogoutHandlerDep,
 ):
     try:
         payload = TokenService().decode_token(access_token)
-        await handler.handle(
+        await handler.execute(
             LogoutUserCommand(
                 access_token=access_token,
                 user_id=UUID(payload["sub"]),
