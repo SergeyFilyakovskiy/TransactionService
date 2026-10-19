@@ -30,7 +30,7 @@ class LoginUserHandler:
         self.token_store = token_store
         self.token_service = token_service
 
-    async def handle(self, command: LoginUserCommand) -> TokenPairDTO:
+    async def execute(self, command: LoginUserCommand) -> TokenPairDTO:
 
         attempts = await self.token_store.get_failed_attempts(command.email)
         if attempts >= MAX_FAILED_ATTEMPTS:

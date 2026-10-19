@@ -25,7 +25,7 @@ class LogoutUserHandler:
         self.token_store = token_store
         self.token_service = token_service
 
-    async def handle(self, command: LogoutUserCommand) -> None:
+    async def execute(self, command: LogoutUserCommand) -> None:
 
         # 1. Decode access token for jti и exp
         payload = self.token_service.decode_token(command.access_token)
