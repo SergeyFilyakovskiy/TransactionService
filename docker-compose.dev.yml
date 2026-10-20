@@ -89,7 +89,6 @@ services:
 
   worker:
     build: .
-    env_file: .env
     command: taskiq worker worker:broker
     restart: unless-stopped
     depends_on:
