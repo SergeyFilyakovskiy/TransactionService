@@ -23,6 +23,7 @@ dependencies = [
     "pre-commit>=4.6.2",
     "aioboto3>=15.5.0",
     "redis>=8.1.0",
+    "fpdf2>=2.8.9",
 ]
 
 [tool.mypy]
