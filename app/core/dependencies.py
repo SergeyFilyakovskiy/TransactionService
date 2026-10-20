@@ -6,28 +6,32 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.commands.cancel_transaction import CancelTransactionHandler
-from app.application.commands.create_currency import CreateCurrencyHandler
-from app.application.commands.delete_currency import DeleteCurrencyHandler
-from app.application.commands.deposit_funds import DepositFundsHandler
-from app.application.commands.freeze_user import FreezeUserHandler
-from app.application.commands.generate_report import GenerateReportHandler
-from app.application.commands.login_user import LoginUserHandler
-from app.application.commands.logout_user import LogoutUserHandler
-from app.application.commands.refresh_token import RefreshTokenHandler
-from app.application.commands.register_user import RegisterUserHandler
-from app.application.commands.unfreeze_user import UnfreezeUserHandler
-from app.application.commands.update_currency import UpdateCurrencyHandler
-from app.application.commands.withdraw_funds import WithdrawFundsHandler
-from app.application.queries.get_balance import GetBalanceHandler
-from app.application.queries.get_currency import GetCurrencyHandler
-from app.application.queries.get_report import GetReportHandler
-from app.application.queries.get_transaction import GetTransactionHandler
-from app.application.queries.get_user import GetUserHandler
-from app.application.queries.list_balances import ListBalancesHandler
-from app.application.queries.list_currencies import ListCurrenciesHandler
-from app.application.queries.list_transactions import ListTransactionsHandler
-from app.application.queries.verify_token import VerifyTokenHandler
+from app.application.commands import (
+    CancelTransactionHandler,
+    CreateCurrencyHandler,
+    DeleteCurrencyHandler,
+    DepositFundsHandler,
+    FreezeUserHandler,
+    GenerateReportHandler,
+    LoginUserHandler,
+    LogoutUserHandler,
+    RefreshTokenHandler,
+    RegisterUserHandler,
+    UnfreezeUserHandler,
+    UpdateCurrencyHandler,
+    WithdrawFundsHandler,
+)
+from app.application.queries import (
+    GetBalanceHandler,
+    GetCurrencyHandler,
+    GetReportHandler,
+    GetTransactionHandler,
+    GetUserHandler,
+    ListBalancesHandler,
+    ListCurrenciesHandler,
+    ListTransactionsHandler,
+    VerifyTokenHandler,
+)
 from app.application.services.token_service import TokenService
 from app.infrastructure.postgres.repositories import (
     BalanceRepository,
