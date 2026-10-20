@@ -1,14 +1,16 @@
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 import aioboto3
 from botocore.config import Config
+from botocore.exceptions import ClientError
 from fastapi import FastAPI, Request
 
 from app.core.config import settings
 
 
 @asynccontextmanager
-async def s3_lifespan(app: FastAPI):
+async def s3_lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
     session = aioboto3.Session()
 
@@ -29,7 +31,10 @@ async def s3_lifespan(app: FastAPI):
 
     app.state.s3_client = await client_cm.__aenter__()
     try:
+        await app.state.s3_client.head_bucket(Bucket=settings.minio_bucket)
         yield
+    except ClientError:
+        await app.state.s3_client.create_bucket(Bucket=settings.minio_bucket)
     finally:
         await client_cm.__aexit__(None, None, None)
 

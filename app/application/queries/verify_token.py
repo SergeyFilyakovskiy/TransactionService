@@ -17,7 +17,6 @@ class VerifyTokenQuery:
 class VerifiedUserDTO:
     user_id: UUID
     email: str
-    role: str
 
 
 class VerifyTokenHandler:
@@ -30,7 +29,7 @@ class VerifyTokenHandler:
         self.token_store = token_store
         self.token_service = token_service
 
-    async def handle(self, query: VerifyTokenQuery) -> VerifiedUserDTO:
+    async def execute(self, query: VerifyTokenQuery) -> VerifiedUserDTO:
 
         payload = self.token_service.decode_token(query.access_token)
 
@@ -47,5 +46,4 @@ class VerifyTokenHandler:
         return VerifiedUserDTO(
             user_id=UUID(payload["sub"]),
             email=payload["email"],
-            role=payload["role"],
         )

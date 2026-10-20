@@ -27,7 +27,7 @@ class RefreshTokenHandler:
         self.token_store = token_store
         self.token_service = token_service
 
-    async def handle(self, command: RefreshTokenCommand) -> TokenPairDTO:
+    async def execute(self, command: RefreshTokenCommand) -> TokenPairDTO:
 
         # 1. Decode refresh token
         payload = self.token_service.decode_token(command.refresh_token)

@@ -25,6 +25,7 @@ dependencies = [
     "redis>=8.1.0",
     "taskiq>=0.13.0",
     "taskiq-redis>=1.2.4",
+    "fpdf2>=2.8.9",
 ]
 
 [tool.mypy]

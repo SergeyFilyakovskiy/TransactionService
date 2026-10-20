@@ -16,11 +16,10 @@ async def verify_token(
     handler: VerifyTokenHandler = Depends(get_verify_handler),
 ):
     try:
-        user = await handler.handle(VerifyTokenQuery(access_token=access_token))
+        user = await handler.execute(VerifyTokenQuery(access_token=access_token))
 
         response.headers["X-User-Id"] = str(user.user_id)
         response.headers["X-User-Email"] = user.email
-        response.headers["X-User-Role"] = user.role
 
         return {"status": "ok"}
     except InvalidTokenError as e:
