@@ -63,8 +63,6 @@ class ReportGenerationService:
 
             await self.session.rollback()
 
-            report = await self.report_repo.get_by_id(report_id)
-            assert report is not None
             report.mark_failed()
             await self.report_repo.save(report)
             await self.session.commit()
