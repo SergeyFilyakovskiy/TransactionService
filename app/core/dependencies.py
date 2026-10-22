@@ -46,7 +46,7 @@ from app.infrastructure.redis.token_store import RedisTokenStore
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-# ── Core dependencies ─────────────────────────────────────
+# ── Core ──────────────────────────────────────────────────
 
 
 async def get_postgres_session() -> AsyncGenerator[AsyncSession, None]:
@@ -67,7 +67,7 @@ async def get_redis(request: Request):
 async def get_access_token(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> str:
-    if not credentials:
+    if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header missing",
@@ -75,7 +75,7 @@ async def get_access_token(
     return credentials.credentials
 
 
-# ── Repository dependencies ──────────────────────────────
+# ── Repositories ──────────────────────────────────────────
 
 
 async def get_user_repo(
@@ -108,7 +108,7 @@ async def get_report_repo(
     return ReportFileRepository(session)
 
 
-# ── Service dependencies ─────────────────────────────────
+# ── Services ─────────────────────────────────────────────
 
 
 async def get_token_store(
@@ -121,7 +121,7 @@ async def get_token_service() -> TokenService:
     return TokenService()
 
 
-# ── Command handlers ─────────────────────────────────────
+# ── Auth handlers ─────────────────────────────────────────
 
 
 async def get_register_handler(
@@ -156,6 +156,39 @@ async def get_logout_handler(
     return LogoutUserHandler(token_store, token_service)
 
 
+async def get_verify_handler(
+    token_store: Annotated[RedisTokenStore, Depends(get_token_store)],
+    token_service: Annotated[TokenService, Depends(get_token_service)],
+) -> VerifyTokenHandler:
+    return VerifyTokenHandler(token_store, token_service)
+
+
+# ── User handlers ─────────────────────────────────────────
+
+
+async def get_freeze_user_handler(
+    session: Annotated[AsyncSession, Depends(get_postgres_session)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+) -> FreezeUserHandler:
+    return FreezeUserHandler(session, user_repo)
+
+
+async def get_unfreeze_user_handler(
+    session: Annotated[AsyncSession, Depends(get_postgres_session)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+) -> UnfreezeUserHandler:
+    return UnfreezeUserHandler(session, user_repo)
+
+
+async def get_get_user_handler(
+    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+) -> GetUserHandler:
+    return GetUserHandler(user_repo)
+
+
+# ── Currency handlers ─────────────────────────────────────
+
+
 async def get_create_currency_handler(
     session: Annotated[AsyncSession, Depends(get_postgres_session)],
     currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
@@ -177,11 +210,41 @@ async def get_delete_currency_handler(
     return DeleteCurrencyHandler(session, currency_repo)
 
 
+async def get_get_currency_handler(
+    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
+) -> GetCurrencyHandler:
+    return GetCurrencyHandler(currency_repo)
+
+
+async def get_list_currencies_handler(
+    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
+) -> ListCurrenciesHandler:
+    return ListCurrenciesHandler(currency_repo)
+
+
+# ── Balance handlers ──────────────────────────────────────
+
+
+async def get_get_balance_handler(
+    balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
+) -> GetBalanceHandler:
+    return GetBalanceHandler(balance_repo)
+
+
+async def get_list_balances_handler(
+    balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
+) -> ListBalancesHandler:
+    return ListBalancesHandler(balance_repo)
+
+
+# ── Transaction handlers ──────────────────────────────────
+
+
 async def get_deposit_handler(
     session: Annotated[AsyncSession, Depends(get_postgres_session)],
     user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
     balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
+    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
     transaction_repo: Annotated[TransactionRepository, Depends(get_transaction_repo)],
 ) -> DepositFundsHandler:
     return DepositFundsHandler(
@@ -192,8 +255,8 @@ async def get_deposit_handler(
 async def get_withdraw_handler(
     session: Annotated[AsyncSession, Depends(get_postgres_session)],
     user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
     balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
+    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
     transaction_repo: Annotated[TransactionRepository, Depends(get_transaction_repo)],
 ) -> WithdrawFundsHandler:
     return WithdrawFundsHandler(
@@ -210,62 +273,6 @@ async def get_cancel_transaction_handler(
     return CancelTransactionHandler(session, user_repo, balance_repo, transaction_repo)
 
 
-async def get_freeze_user_handler(
-    session: Annotated[AsyncSession, Depends(get_postgres_session)],
-    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-) -> FreezeUserHandler:
-    return FreezeUserHandler(session, user_repo)
-
-
-async def get_unfreeze_user_handler(
-    session: Annotated[AsyncSession, Depends(get_postgres_session)],
-    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-) -> UnfreezeUserHandler:
-    return UnfreezeUserHandler(session, user_repo)
-
-
-async def get_generate_report_handler(
-    session: Annotated[AsyncSession, Depends(get_postgres_session)],
-    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-    report_repo: Annotated[ReportFileRepository, Depends(get_report_repo)],
-) -> GenerateReportHandler:
-    return GenerateReportHandler(session, user_repo, report_repo)
-
-
-# ── Query handlers ───────────────────────────────────────
-
-
-async def get_verify_handler(
-    token_store: Annotated[RedisTokenStore, Depends(get_token_store)],
-    token_service: Annotated[TokenService, Depends(get_token_service)],
-) -> VerifyTokenHandler:
-    return VerifyTokenHandler(token_store, token_service)
-
-
-async def get_get_currency_handler(
-    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
-) -> GetCurrencyHandler:
-    return GetCurrencyHandler(currency_repo)
-
-
-async def get_list_currencies_handler(
-    currency_repo: Annotated[CurrencyRepository, Depends(get_currency_repo)],
-) -> ListCurrenciesHandler:
-    return ListCurrenciesHandler(currency_repo)
-
-
-async def get_get_balance_handler(
-    balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
-) -> GetBalanceHandler:
-    return GetBalanceHandler(balance_repo)
-
-
-async def get_list_balances_handler(
-    balance_repo: Annotated[BalanceRepository, Depends(get_balance_repo)],
-) -> ListBalancesHandler:
-    return ListBalancesHandler(balance_repo)
-
-
 async def get_get_transaction_handler(
     transaction_repo: Annotated[TransactionRepository, Depends(get_transaction_repo)],
 ) -> GetTransactionHandler:
@@ -278,19 +285,24 @@ async def get_list_transactions_handler(
     return ListTransactionsHandler(transaction_repo)
 
 
+# ── Report handlers ───────────────────────────────────────
+
+
+async def get_generate_report_handler(
+    session: Annotated[AsyncSession, Depends(get_postgres_session)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+    report_repo: Annotated[ReportFileRepository, Depends(get_report_repo)],
+) -> GenerateReportHandler:
+    return GenerateReportHandler(session, user_repo, report_repo)
+
+
 async def get_get_report_handler(
     report_repo: Annotated[ReportFileRepository, Depends(get_report_repo)],
 ) -> GetReportHandler:
     return GetReportHandler(report_repo)
 
 
-async def get_get_user_handler(
-    user_repo: UserRepoDep,
-) -> GetUserHandler:
-    return GetUserHandler(user_repo)
-
-
-# ── Type aliases for use in endpoints ────────────────────
+# ── Type aliases for endpoints ────────────────────────────
 
 SessionDep = Annotated[AsyncSession, Depends(get_postgres_session)]
 AccessTokenDep = Annotated[str, Depends(get_access_token)]
@@ -310,6 +322,12 @@ RefreshHandlerDep = Annotated[RefreshTokenHandler, Depends(get_refresh_handler)]
 LogoutHandlerDep = Annotated[LogoutUserHandler, Depends(get_logout_handler)]
 VerifyHandlerDep = Annotated[VerifyTokenHandler, Depends(get_verify_handler)]
 
+GetUserHandlerDep = Annotated[GetUserHandler, Depends(get_get_user_handler)]
+FreezeUserHandlerDep = Annotated[FreezeUserHandler, Depends(get_freeze_user_handler)]
+UnfreezeUserHandlerDep = Annotated[
+    UnfreezeUserHandler, Depends(get_unfreeze_user_handler)
+]
+
 CreateCurrencyHandlerDep = Annotated[
     CreateCurrencyHandler, Depends(get_create_currency_handler)
 ]
@@ -319,22 +337,6 @@ UpdateCurrencyHandlerDep = Annotated[
 DeleteCurrencyHandlerDep = Annotated[
     DeleteCurrencyHandler, Depends(get_delete_currency_handler)
 ]
-
-DepositHandlerDep = Annotated[DepositFundsHandler, Depends(get_deposit_handler)]
-WithdrawHandlerDep = Annotated[WithdrawFundsHandler, Depends(get_withdraw_handler)]
-CancelTransactionHandlerDep = Annotated[
-    CancelTransactionHandler, Depends(get_cancel_transaction_handler)
-]
-
-FreezeUserHandlerDep = Annotated[FreezeUserHandler, Depends(get_freeze_user_handler)]
-UnfreezeUserHandlerDep = Annotated[
-    UnfreezeUserHandler, Depends(get_unfreeze_user_handler)
-]
-
-GenerateReportHandlerDep = Annotated[
-    GenerateReportHandler, Depends(get_generate_report_handler)
-]
-
 GetCurrencyHandlerDep = Annotated[GetCurrencyHandler, Depends(get_get_currency_handler)]
 ListCurrenciesHandlerDep = Annotated[
     ListCurrenciesHandler, Depends(get_list_currencies_handler)
@@ -345,6 +347,11 @@ ListBalancesHandlerDep = Annotated[
     ListBalancesHandler, Depends(get_list_balances_handler)
 ]
 
+DepositHandlerDep = Annotated[DepositFundsHandler, Depends(get_deposit_handler)]
+WithdrawHandlerDep = Annotated[WithdrawFundsHandler, Depends(get_withdraw_handler)]
+CancelTransactionHandlerDep = Annotated[
+    CancelTransactionHandler, Depends(get_cancel_transaction_handler)
+]
 GetTransactionHandlerDep = Annotated[
     GetTransactionHandler, Depends(get_get_transaction_handler)
 ]
@@ -352,6 +359,7 @@ ListTransactionsHandlerDep = Annotated[
     ListTransactionsHandler, Depends(get_list_transactions_handler)
 ]
 
+GenerateReportHandlerDep = Annotated[
+    GenerateReportHandler, Depends(get_generate_report_handler)
+]
 GetReportHandlerDep = Annotated[GetReportHandler, Depends(get_get_report_handler)]
-
-GetUserHandlerDep = Annotated[GetUserHandler, Depends(get_get_user_handler)]

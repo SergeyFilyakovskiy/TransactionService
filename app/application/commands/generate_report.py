@@ -14,6 +14,7 @@ class GenerateReportCommand:
 
 
 class GenerateReportHandler:
+
     def __init__(
         self,
         session: AsyncSession,
@@ -30,13 +31,11 @@ class GenerateReportHandler:
         if user is None:
             raise UserNotFoundError()
 
+        user.check_not_frozen()
+
         report = ReportFile.create(user_id=command.user_id)
 
         await self.report_repo.save(report)
         await self.session.commit()
-
-        # report.mark_processing()
-        # await self.report_repo.save(report)
-        # await self.session.commit()
 
         return report

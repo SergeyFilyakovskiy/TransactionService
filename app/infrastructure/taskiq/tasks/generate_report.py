@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from contextlib import aclosing
 from uuid import UUID
 
 from app.application.services.report_generation_service import ReportGenerationService
@@ -19,9 +18,7 @@ logger = logging.getLogger(__name__)
 async def generate_report_task(report_id: str) -> None:
     logger.info("Report generation started: %s", report_id)
 
-    async with aclosing(worker_context()) as ctx_gen:
-        ctx = await ctx_gen.__anext__()
-
+    async with worker_context() as ctx:
         service = ReportGenerationService(
             session=ctx.session,
             report_repo=ctx.report_repo,
